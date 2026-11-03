@@ -1,0 +1,8 @@
+# Global theme: Streamlit reads this file automatically at start-up.
+[theme]
+base = "light"
+primaryColor = "#1F5AA6"            # buttons, sliders, checkboxes
+backgroundColor = "#F5F7FA"         # main page: soft grey, not pure white
+secondaryBackgroundColor = "#FFFFFF" # sidebar and input boxes
+textColor = "#1B2A3A"
+font = "sans serif"
