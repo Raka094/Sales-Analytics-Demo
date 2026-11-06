@@ -66,7 +66,7 @@ The app is built to tell one connected story, not to show separate features:
 - Table of the largest individual gaps, with CSV export
 
 **AI summary**
-- Short manager summary written by an LLM (Anthropic Claude)
+- Short manager summary written by an open-weight LLM via Groq's free API tier
 - Only aggregated figures are sent to the model
 - The exact facts are shown on screen, so every number can be checked
 - Works without an API key, using a template summary
@@ -99,13 +99,15 @@ The app opens at `http://localhost:8501`.
 
 ### Enabling the AI summary (optional)
 
-1. Create an API key at [console.anthropic.com](https://console.anthropic.com).
+1. Create a free API key at [console.groq.com/keys](https://console.groq.com/keys). No payment card needed.
 2. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`.
 3. Add your key:
    ```toml
-   ANTHROPIC_API_KEY = "sk-ant-..."
+   GROQ_API_KEY = "gsk_..."
    ```
 4. Restart the app.
+
+The default model is `openai/gpt-oss-120b`. Free model lists change, so you can set `GROQ_MODEL` in the same file to use another one.
 
 `secrets.toml` is listed in `.gitignore`. Never commit it.
 
@@ -155,9 +157,9 @@ Rows with zero or negative volume, or negative revenue, are removed with a warni
 | The prompt allows only the given facts | Reduces made-up numbers |
 | The facts are shown next to the summary | Anyone can check the output |
 | A cached result per set of facts | The same numbers never cost a second API call |
-| A template fallback without a key | The app works without an AI account |
-
-Note: the current Claude API version no longer accepts a `temperature` setting. Consistent output comes from strict instructions and fixed input facts.
+| Low temperature (0.2) | Consistent, factual wording |
+| A template fallback without a key or on error | The app always works, even if the AI service is down |
+| The provider is isolated in `ai_summary.py` | Switching to another LLM, such as a company-internal endpoint, changes one file |
 
 ![AI summary](docs/ai_summary.png)
 
@@ -167,7 +169,7 @@ Note: the current Claude API version no longer accepts a `temperature` setting. 
 sales-analytics-demo/
 ├── .streamlit/
 │   ├── config.toml               # theme colours and font
-│   └── secrets.toml.example      # template for the API key
+│   └── secrets.toml.example      # template for the Groq API key
 ├── docs/                         # screenshots for this README
 ├── app.py                        # the Streamlit page: layout, filters, tabs
 ├── analysis.py                   # ABC and pricing logic (pure pandas, no UI)
@@ -188,7 +190,7 @@ The app runs for free on [Streamlit Community Cloud](https://share.streamlit.io)
 1. Push the repository to GitHub, including `sales_data.csv`.
 2. Sign in to Streamlit Community Cloud with GitHub.
 3. Choose **New app**, then pick the repository and `app.py`.
-4. Optional: under **Settings → Secrets**, add `ANTHROPIC_API_KEY`.
+4. Optional: under **Settings → Secrets**, add `GROQ_API_KEY`.
 
 ## Limitations
 
