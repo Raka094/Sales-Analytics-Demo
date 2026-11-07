@@ -50,24 +50,34 @@ def fmt_m(x: float) -> str:
 # Sidebar: data and filters
 # =========================================================================
 st.sidebar.header("Data")
-uploaded = st.sidebar.file_uploader("Upload sales CSV", type="csv")
-use_sample = st.sidebar.checkbox("Use sample data instead", value=uploaded is None)
+# Rule: an uploaded file always wins. Without an upload, the sample data is used.
+# (An earlier version had a "use sample" checkbox that stayed ticked after an
+# upload, so uploaded files were silently ignored.)
+uploaded = st.sidebar.file_uploader(
+    "Upload sales CSV", type="csv",
+    help="Remove the file (×) to go back to the sample data.")
 
+with open("sales_data.csv", "rb") as f:
+    st.sidebar.download_button(
+        "Download sample CSV", f, file_name="sales_data_sample.csv",
+        mime="text/csv", help="Use it as a template: your own file needs the same column names.")
+
+source = uploaded.name if uploaded is not None else "sample data"
 header("Sales Analytics Demo",
-       "Customer segmentation and pricing analysis · synthetic chemical sales data, FY2025")
+       "Customer segmentation and pricing analysis · "
+       + (f"uploaded file: {source}" if uploaded is not None
+          else "synthetic chemical sales data, FY2025"))
 
 try:
-    if uploaded is not None and not use_sample:
-        raw = load_data(uploaded)
-    elif use_sample:
-        raw = load_data("sales_data.csv")
-    else:
-        st.info("Upload a sales CSV in the sidebar, or tick 'Use sample data'.")
-        st.stop()
-except (ValueError, pd.errors.ParserError) as e:
-    # e.g. no 'month' column, or not a real CSV
-    st.error(f"Could not read the file: {e}")
+    raw = load_data(uploaded if uploaded is not None else "sales_data.csv")
+except (ValueError, pd.errors.ParserError, UnicodeDecodeError) as e:
+    # e.g. no 'month' column, not a real CSV, or an Excel file renamed to .csv
+    st.error("Could not read the file. Please upload a comma-separated CSV saved as UTF-8 "
+             "(in Excel: Save As → 'CSV UTF-8'). You can download the sample CSV in the "
+             f"sidebar as a template. Details: {type(e).__name__}")
     st.stop()
+
+st.sidebar.caption(f"Using: **{source}** ({len(raw):,} rows)")
 
 missing = REQUIRED_COLUMNS - set(raw.columns)
 if missing:
