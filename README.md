@@ -18,7 +18,7 @@ An **AI summary** then turns the results into a short note a manager can act on.
 
 **Live demo:** [add your Streamlit Cloud link here]
 
-![ABC segmentation](docs/abc_segmentation.png)
+
 
 ---
 
